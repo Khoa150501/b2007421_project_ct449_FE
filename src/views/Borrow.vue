@@ -1,164 +1,74 @@
 <template>
-  <div class="borrow-management">
-    <div class="search-bar mb-4">
-      <input
-        v-model="searchQuery"
-        type="text"
-        placeholder="Tìm kiếm sách hoặc người mượn"
-        @input="searchBorrows"
-        class="form-control"
-      />
-    </div>
-
-    <div class="container">
-      <div class="row">
-        <div v-for="borrow in filteredBorrows" :key="borrow._id" class="col-md-4 mb-4">
-          <div class="card">
-            <div class="card-body">
-              <h5>{{ borrow.book.tensach }}</h5>
-              <p><strong>Người Mượn:</strong> {{ borrow.reader.name }}</p>
-              <p><strong>Ngày Mượn:</strong> {{ borrow.dateBorrowed | formatDate }}</p>
-              <p><strong>Ngày Trả:</strong> {{ borrow.dateReturned ? borrow.dateReturned | formatDate : 'Chưa trả' }}</p>
-              <p><strong>Tình Trạng:</strong> 
-                <span :class="{'text-success': borrow.status === 'returned', 'text-danger': borrow.status === 'not-returned'}">
-                  {{ borrow.status === 'returned' ? 'Đã trả' : 'Chưa trả' }}
-                </span>
-              </p>
-              <button
-                v-if="borrow.status === 'not-returned'"
-                class="btn btn-success"
-                @click="updateStatus(borrow._id, 'returned')"
-              >
-                Đánh dấu là đã trả
-              </button>
-              <button
-                v-if="borrow.status === 'returned'"
-                class="btn btn-warning"
-                @click="updateStatus(borrow._id, 'not-returned')"
-              >
-                Đánh dấu là chưa trả
-              </button>
-            </div>
-          </div>
-        </div>
+  <div>
+      <section class="hero">
+      <div class="hero-content">
+       <h1>Quản lý Mượn Sách</h1>
+        <!-- <router-link to="/books" class="btn-primary">Xem Sách</router-link> -->
+        <!-- <router-link to="/borrow" class="btn-secondary">Quản lý Mượn Sách</router-link> -->
       </div>
-    </div>
+    </section>
+
+    <BorrowStatistics :borrows="borrows" />
+    <BorrowList :borrows="borrows" />
+    <BorrowForm @addBorrow="addBorrow" />
+
   </div>
 </template>
 
 <script>
-import axios from "axios";
+import axios from 'axios';
+import BorrowList from '@/components/BorrowList.vue';
+import BorrowForm from '@/components/BorrowForm.vue';
+import BorrowStatistics from '@/components/BorrowStatistics.vue';
 
 export default {
-  name: "BorrowManagement",
   data() {
     return {
       borrows: [],
-      filteredBorrows: [],
-      searchQuery: "",
-      loading: true,
     };
   },
-  mounted() {
+  created() {
     this.fetchBorrows();
   },
   methods: {
     async fetchBorrows() {
       try {
-        const response = await axios.get("http://localhost:3001/api/borrows");
+        const response = await axios.get('http://localhost:3000/api/borrow');
         this.borrows = response.data;
-        this.filteredBorrows = this.borrows; // Mặc định hiển thị toàn bộ mượn sách
-        this.loading = false;
       } catch (error) {
-        console.error("Có lỗi khi lấy danh sách mượn sách:", error.message);
-        this.loading = false;
+        console.error('Lỗi khi lấy danh sách phiếu mượn:', error);
       }
     },
-    searchBorrows() {
-      if (this.searchQuery.trim() === "") {
-        this.filteredBorrows = this.borrows;
-      } else {
-        this.filteredBorrows = this.borrows.filter((borrow) => {
-          return (
-            borrow.book.tensach.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-            borrow.reader.name.toLowerCase().includes(this.searchQuery.toLowerCase())
-          );
-        });
-      }
-    },
-    async updateStatus(borrowId, status) {
+    async addBorrow(newBorrow) {
       try {
-        await axios.patch(`http://localhost:3001/api/borrows/${borrowId}`, { status });
-        this.fetchBorrows(); // Cập nhật lại danh sách sau khi thay đổi trạng thái
+        const response = await axios.post('http://localhost:3000/api/borrow', newBorrow);
+        this.borrows.push(response.data);
       } catch (error) {
-        console.error("Có lỗi khi cập nhật trạng thái mượn sách:", error.message);
+        console.error('Lỗi khi thêm phiếu mượn:', error);
       }
-    }
+    },
   },
-  filters: {
-    formatDate(value) {
-      if (!value) return '';
-      const date = new Date(value);
-      return date.toLocaleDateString('vi-VN', {
-        year: 'numeric',
-        month: 'numeric',
-        day: 'numeric',
-      });
-    }
-  }
+  components: {
+    BorrowList,
+    BorrowForm,
+    BorrowStatistics
+  },
 };
 </script>
-
 <style scoped>
-.borrow-management {
-  padding: 20px;
+.hero {
+  /* background-color: #4CAF50; */
+  background-image: url(/src/assets/img/banner-gia-ke-thu-vien.jpg);
+  padding: 50px 20px;
+  text-align: center;
+  color: white;
+  margin-bottom: 50px;
 }
 
-.search-bar input {
-  padding: 10px;
-  width: 60%;
-  font-size: 16px;
-  border-radius: 5px;
-  border: 1px solid #ddd;
-  margin-top: 10px;
-  box-sizing: border-box;
+.hero h1 {
+  font-size: 36px;
+  font-style: bold;
+  margin-bottom: 20px;
 }
 
-/* Card */
-.card {
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s;
-}
-
-.card:hover {
-  transform: scale(1.05);
-}
-
-.card-body {
-  padding: 15px;
-}
-
-.card-body h5 {
-  font-size: 18px;
-  margin: 10px 0;
-}
-
-.card-body p {
-  font-size: 14px;
-  margin: 5px 0;
-}
-
-.card-body button {
-  margin-top: 10px;
-}
-
-/* Success & Danger Text */
-.text-success {
-  color: green;
-}
-
-.text-danger {
-  color: red;
-}
 </style>

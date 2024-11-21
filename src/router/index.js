@@ -3,6 +3,8 @@ import Home from "@/views/Home.vue";
 import Register from "@/views/Register.vue";
 import Login from "@/views/Login.vue";
 import Book from "@/views/Book.vue";
+import Borrow from "@/views/Borrow.vue";
+import Docgia from "@/views/Readers.vue"
 
 const routes = [
   {
@@ -24,6 +26,16 @@ const routes = [
     path: "/books",
     name: "books",
     component: Book,      // Route đến trang đăng nhập
+  },
+   {
+    path: "/borrow",
+    name: "borrow",
+    component: Borrow,      // Route đến trang đăng nhập
+  },
+   {
+    path: "/readers", // Thêm route cho trang quản lý độc giả
+    name: "readers",
+    component: Docgia,
   },
 ];
 
