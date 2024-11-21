@@ -5,92 +5,77 @@
       <div class="hero-content">
         <h1>Chào mừng đến với Hệ thống Quản lý Thư viện</h1>
         <p>Quản lý sách, mượn sách và theo dõi hoạt động một cách dễ dàng và hiệu quả.</p>
-        <router-link to="/books" class="btn-primary">Xem Sách</router-link>
-        <router-link to="/borrow" class="btn-secondary">Quản lý Mượn Sách</router-link>
-      </div>
-    </section>
-
-    <!-- Features Section -->
-    <section class="features">
-      <h2>Chức năng nổi bật</h2>
-      <div class="feature-cards">
-        <!-- Sử dụng component con BookCard -->
-         
-        <BookCard v-for="book in books" :key="book.masach" :book="book" />
-
-        <div class="card">
-          <h3>Quản Lý Mượn Sách</h3>
-          <p>Theo dõi thông tin mượn sách và hạn trả.</p>
-        </div>
-        <div class="card">
-          <h3>Quản Lý Độc Giả</h3>
-          <p>Thêm và quản lý thông tin độc giả sử dụng hệ thống.</p>
+        <div class="cta-buttons">
+          <router-link to="/books" class="btn-primary">Xem Sách</router-link>
+          <router-link to="/borrow" class="btn-secondary">Quản lý Mượn Sách</router-link>
         </div>
       </div>
     </section>
 
-    <!-- About Us Section -->
-    <section class="about-us">
-      <h2>Về chúng tôi</h2>
-      <p>
-        Hệ thống quản lý thư viện này được thiết kế để giúp thư viện hoạt động hiệu quả hơn với tính năng quản lý sách, mượn sách và theo dõi các hoạt động.
-        Với giao diện dễ sử dụng, người dùng có thể dễ dàng tìm kiếm và mượn sách một cách nhanh chóng.
-      </p>
-    </section>
+    <!-- Statistics Section -->
+     <div class="mb-5"> 
+    <Statistics :borrows="borrows" />
+     </div>
   </div>
 </template>
 
 <script>
-import axios from 'axios';
-import BookCard from '@/components/BookCard.vue';  // Đảm bảo import đúng
+import Statistics from '@/components/BorrowStatistics.vue';
 
 export default {
   name: 'Home',
   components: {
-    BookCard  // Đăng ký component con
+    Statistics
   },
   data() {
     return {
-      books: []  // Mảng chứa danh sách sách
+      // Dữ liệu phiếu mượn, có thể lấy từ API
+      borrows: [
+        { tinhtrang: true },  // Phiếu đã trả
+        { tinhtrang: false }, // Phiếu chưa trả
+        { tinhtrang: true },
+        { tinhtrang: false }
+      ]
     };
-  },
-  mounted() {
-    this.fetchBooks();  // Khi trang được tải, gọi API để lấy danh sách sách
-  },
-  methods: {
-    async fetchBooks() {
-      try {
-        const response = await axios.get('http://localhost:3001/api/books'); // URL API lấy sách
-        this.books = response.data;  // Gán dữ liệu sách vào biến books
-      } catch (error) {
-        console.error('Có lỗi khi lấy danh sách sách:', error.message);
-      }
-    }
   }
 };
 </script>
 
 <style scoped>
-/* Overall home styling */
+/* General Styling */
 .home {
-  font-family: Arial, sans-serif;
+  font-family: 'Arial', sans-serif;
   color: #333;
 }
 
 /* Hero Section */
 .hero {
-  /* background-color: #4CAF50; */
-  background-image: url(/src/assets/img/banner-gia-ke-thu-vien.jpg);
+  position: relative; /* Cần thiết để cho phép ::before phủ lên trên background */
+  background-image: url('/src/assets/img/banner-gia-ke-thu-vien.jpg');
+  background-size: cover;
+  background-position: center;
   color: white;
-  padding: 50px 20px;
+  padding: 100px 20px;
   text-align: center;
-  margin-bottom: 50px;
+  margin-bottom: 60px;
+}
+
+.hero::before {
+  content: ""; /* Tạo một phần tử ảo */
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4); /* Màu đen bán trong suốt */
+  z-index: -1; /* Đảm bảo lớp phủ ở phía dưới các phần tử nội dung */
 }
 
 .hero h1 {
-  font-size: 36px;
-  font-style: bold;
+  font-size: 48px;
+  font-weight: bold;
   margin-bottom: 20px;
+  text-transform: uppercase;
 }
 
 .hero p {
@@ -98,13 +83,20 @@ export default {
   margin-bottom: 30px;
 }
 
-.btn-primary, .btn-secondary {
-  padding: 10px 20px;
+.cta-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.btn-primary,
+.btn-secondary {
+  padding: 12px 25px;
   color: white;
   text-decoration: none;
-  font-size: 16px;
-  margin: 10px;
+  font-size: 18px;
   border-radius: 5px;
+  transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
 .btn-primary {
@@ -115,54 +107,72 @@ export default {
   background-color: #6c757d;
 }
 
-.hero .btn-primary:hover, .hero .btn-secondary:hover {
-  opacity: 0.8;
+.btn-primary:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+  transform: translateY(-2px);
 }
 
 /* Features Section */
 .features {
   text-align: center;
-  margin-bottom: 50px;
+  margin-bottom: 60px;
 }
 
 .features h2 {
-  font-size: 30px;
+  font-size: 36px;
   margin-bottom: 40px;
+  color: #444;
+  text-transform: uppercase;
 }
 
 .feature-cards {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-evenly;
   flex-wrap: wrap;
+  gap: 20px;
 }
 
 .feature-cards .card {
-  width: 250px;
+  width: 280px;
   background-color: #f8f9fa;
   padding: 20px;
-  margin: 10px;
   border-radius: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.feature-cards .card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
 
 .card h3 {
   font-size: 24px;
   margin-bottom: 15px;
+  color: #333;
 }
 
 .card p {
   font-size: 16px;
+  color: #666;
 }
 
 /* About Us Section */
 .about-us {
   text-align: center;
-  margin: 50px 20px;
+  margin: 60px 20px;
 }
 
 .about-us h2 {
-  font-size: 30px;
-  margin-bottom: 20px;
+  font-size: 36px;
+  margin-bottom: 30px;
+  color: #444;
 }
 
 .about-us p {
@@ -170,5 +180,6 @@ export default {
   line-height: 1.6;
   max-width: 800px;
   margin: 0 auto;
+  color: #555;
 }
 </style>

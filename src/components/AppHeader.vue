@@ -26,7 +26,7 @@
           <router-link to="/readers" class="nav-link">Quản Lý Độc Giả</router-link>
         </li>
         <li class="nav-item">
-          <router-link to="/statistics" class="nav-link">Thống Kê</router-link>
+          <router-link to="/borrow" class="nav-link">Thống Kê</router-link>
         </li>
       </ul>
 

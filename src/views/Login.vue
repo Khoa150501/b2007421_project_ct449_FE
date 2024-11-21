@@ -3,7 +3,7 @@
     <h2>Đăng Nhập</h2>
     <form @submit.prevent="handleLogin">
       <div>
-        <label for="email">Email</label>
+        <label for="email">Email/SDT</label>
         <input type="email" id="email" v-model="email" required />
       </div>
       <div>
