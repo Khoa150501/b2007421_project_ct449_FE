@@ -4,7 +4,7 @@ import Register from "@/views/Register.vue";
 import Login from "@/views/Login.vue";
 import Book from "@/views/Book.vue";
 import Borrow from "@/views/Borrow.vue";
-import Docgia from "@/views/Readers.vue"
+import ReadersView from "@/views/Readers.vue"
 
 const routes = [
   {
@@ -19,7 +19,7 @@ const routes = [
   },
   {
     path: "/login",
-    name: "login",
+    name: "Login",
     component: Login,      // Route đến trang đăng nhập
   },
   {
@@ -35,8 +35,9 @@ const routes = [
    {
     path: "/readers", // Thêm route cho trang quản lý độc giả
     name: "readers",
-    component: Docgia,
+    component: ReadersView,
   },
+   { path: '/readers', component: ReadersView }
 ];
 
 const router = createRouter({

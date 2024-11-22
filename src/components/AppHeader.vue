@@ -33,9 +33,11 @@
       <!-- Thanh tìm kiếm -->
       <div class="search-box">
         <input
+          v-model="searchQuery"
           type="text"
-          placeholder="Tìm kiếm..."
+          placeholder="Tìm kiếm sách..."
           class="search-input"
+          @input="searchBooks"
         />
         <button class="search-button">
           <i class="fas fa-search"></i>
@@ -46,25 +48,31 @@
     <!-- Thông tin người dùng -->
     <div class="user-info">
       <button class="user-dropdown-toggle" @click="toggleUserMenu">
-        <i class="fas fa-user"></i> Admin
+        <i class="fas fa-user"></i> {{ userName || 'Đăng nhập' }}
       </button>
       <ul :class="['user-menu', { 'menu-open': userMenuOpen }]">
         <li><a href="#" class="dropdown-item">Hồ Sơ</a></li>
         <li><a href="#" class="dropdown-item">Đổi Mật Khẩu</a></li>
         <li class="divider"></li>
-        <li><a href="#" class="dropdown-item">Đăng Xuất</a></li>
+        <li><a href="#" class="dropdown-item" @click="logout">Đăng Xuất</a></li>
       </ul>
     </div>
   </header>
 </template>
 
 <script>
+import { eventBus } from "@/event-bus";
 export default {
   name: "AppHeader",
   data() {
     return {
       menuOpen: false,
       userMenuOpen: false,
+      userName: null, // Lưu tên người dùng
+      searchQuery: '',  
+      // books: [],  
+      // error: null,  
+      // loading: false,  
     };
   },
   methods: {
@@ -74,6 +82,40 @@ export default {
     toggleUserMenu() {
       this.userMenuOpen = !this.userMenuOpen;
     },
+    logout() {
+      // Xóa token và thông tin người dùng khỏi localStorage
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+
+      // Chuyển hướng về trang đăng nhập
+      this.$router.push("/login");
+    },
+   async searchBooks() {
+      if (this.searchQuery.trim() === '') {
+        eventBus.updateSearchResults("", [], null); // Clear results if search is empty
+        return;
+      }
+
+      try {
+        const response = await fetch(`http://localhost:3000/api/books/search?query=${this.searchQuery}`);
+        const data = await response.json();
+
+        if (response.ok) {
+          eventBus.updateSearchResults(this.searchQuery, data); // Update event bus with results
+        } else {
+          eventBus.updateSearchResults(this.searchQuery, [], "Không thể tìm thấy sách.");
+        }
+      } catch (error) {
+        eventBus.updateSearchResults(this.searchQuery, [], "Đã xảy ra lỗi khi tìm kiếm.");
+      }
+    },
+  },
+  mounted() {
+    // Lấy thông tin người dùng từ localStorage
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (user && user.hotennv) {
+      this.userName = user.hotennv;
+    }
   },
 };
 </script>
@@ -92,6 +134,7 @@ export default {
   position: relative;
   z-index: 1000;
 }
+
 /* Logo */
 .header-logo .logo-link {
   display: flex;

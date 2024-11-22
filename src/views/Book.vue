@@ -1,4 +1,7 @@
 <template>
+    <div class="book-search-view">
+    <SeacrchResult />
+  </div>
   <div class="book-view">
     <BookList />
   </div>
@@ -7,11 +10,15 @@
 <script>
 // Import BookList component
 import BookList from '@/components/BookList.vue';
+// import BookSearch from '@/components/InputSearch.vue';
+import SeacrchResult from '@/components/SeacrchResult.vue';
+
 
 export default {
   name: 'BookView',
   components: {
-    BookList, // Đăng ký component BookList trong view này
+    BookList,
+    SeacrchResult
   },
 };
 </script>
